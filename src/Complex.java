@@ -21,8 +21,10 @@ public class Complex {
 
     public void mult(Complex other) {
 //        z 1 ⋅z 2 := (x 1 ⋅x 2 – y 1 ⋅y 2 | x 1 ⋅y 2 + x 2 ⋅y 1 )
-        real = real * other.real - imag * other.imag;
-        imag = real * other.imag + other.real * imag;
+        double newreal = real * other.real - imag * other.imag;
+        double newimag = real * other.imag + other.real * imag;
+        setReal(newreal);
+        setImag(newimag);
 
     }
 
