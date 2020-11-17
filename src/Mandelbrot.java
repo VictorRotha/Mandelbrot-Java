@@ -1,25 +1,24 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Date;
 
 public class Mandelbrot {
 
-    public static final int WIDTH = 600;
-    public static final int HEIGHT = 600;
+    public static final int WIDTH = 1080;
+    public static final int HEIGHT = 1080;
     public static final int ZOOM = 2;
 
     private JFrame frame;
     private BufferedImage bi;
 
     private final double LIMITER = 2.0;
-    private final int DEPTH = 100;
+    private final int DEPTH = 1000;
 
     private double centerReal, centerImag, rangeReal, rangeImag;
 
 
-
     public Mandelbrot() {
-
         centerReal = 0.5;
         centerImag = 0;
         rangeReal = 2.5;
@@ -39,16 +38,25 @@ public class Mandelbrot {
     public void startMandel() {
         System.out.println("CENTER: " + centerReal + ", " + centerImag);
         System.out.println("RANGE REAL: " + rangeReal + ",  RANGE IMAG: " + rangeImag);
+        System.out.println("WIDTH: " + WIDTH + " HEIGHT: " + HEIGHT + " DEPTH: " + DEPTH + " LIMIT: " + LIMITER);
+        long now = new Date().getTime();
+
         int[] mandelArray = getMandelArray();
-        int[] pixelArray = getPixelArray(mandelArray, 1);
+        long t = new Date().getTime() - now;
+
+        System.out.println("MandelArray: " + t/1000.0 + " sec");
+        int[] pixelArray = getPixelArray(mandelArray, 8);
+        System.out.println("PixelArray:  " + (new Date().getTime() - now - t)/1000.0 + " sec");
         bi.setRGB(0,0,WIDTH, HEIGHT, pixelArray, 0,WIDTH);
 
     }
 
     private int[] getMandelArray() {
+        int m;
         int[] pixels = new int[WIDTH * HEIGHT];
         for (int i = 0; i < WIDTH * HEIGHT; i++) {
-            pixels[i] = getMandel(i);
+            m = getMandel(i);
+            pixels[i] = m;
         }
         return pixels;
     }
@@ -78,17 +86,71 @@ public class Mandelbrot {
 
     public int[] getPixelArray(int[] _mandelArray, int type) {
         int d;
+        int r, g, b;
+        float hue;
         int[] result = new int[_mandelArray.length];
         for (int i = 0; i < _mandelArray.length; i++) {
             d = _mandelArray[i];
             switch (type) {
                 case 0:
+                    //BLACK & WHITE
                     result[i] = (d == DEPTH) ? Color.BLACK.getRGB() : Color.WHITE.getRGB();
                     break;
                 case 1:
-                    int color  = (int) (255 - (255.0 / DEPTH) * d);
-                    result[i] = new Color(color, color, color).getRGB();
+                    //GRAYSCALE
+                    float brightness = 0.8f - (0.8f * d/DEPTH);
+                    result[i] = Color.getHSBColor(0.0f, 0.0f, brightness).getRGB();
                     break;
+                case 2:
+                    //RGB 1
+                    r = (int) ((255.0 / DEPTH) * d);
+                    g = (int) (255 - (255.0 / DEPTH) * d);
+                    b = (int) ((255.0 / DEPTH) * d);
+                    result[i] = new Color(r, g, b).getRGB();
+                    break;
+                case 3:
+                    //RGB 2
+                    if (d < 2 * DEPTH / 3) {
+                        r = 0;
+                    } else {
+                        r = (int) ((255.0 / (DEPTH / 3.0)) * d/3.0);
+                    }
+                    if (d < DEPTH / 3) {
+                        g = 0;
+                    } else {
+                        g = (int) ((255.0 / (DEPTH / 3.0)) * d/3.0);
+                    }
+
+                    b = 255 - (int) ((255.0 / DEPTH) * d);
+                    result[i] = new Color(r, g, b).getRGB();
+                    break;
+                case 4:
+                    //RGB Red
+                    r = (int) ((255.0 / DEPTH) * d);
+                    g = 0;
+                    b = 0;
+                    result[i] = new Color(r, g, b).getRGB();
+                    break;
+                case 5:
+                    hue = 1.0f * d / DEPTH;
+                    result[i] = Color.getHSBColor(hue, 0.9f, 0.9f).getRGB();
+                    break;
+                case 6:
+                    hue = 0.05f + 0.4f * d / DEPTH;
+                    result[i] = Color.getHSBColor(hue, 0.9f, 0.9f).getRGB();
+                    break;
+                case 7:
+                    hue = 0.4f + 0.4f * (float) (Math.log(d)/Math.log(DEPTH));
+                    result[i] = Color.getHSBColor(hue, 0.9f, 0.9f).getRGB();
+                    break;
+                case 8:
+                    hue = 0.4f + 0.4f * (float) (Math.sin(d)/Math.sin(DEPTH));
+                    result[i] = Color.getHSBColor(hue, 0.9f, 0.9f).getRGB();
+                    break;
+
+
+
+
             }
           }
         return result;
