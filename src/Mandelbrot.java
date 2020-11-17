@@ -5,15 +5,16 @@ import java.util.Date;
 
 public class Mandelbrot {
 
-    public static final int WIDTH = 1080;
-    public static final int HEIGHT = 1080;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 800;
     public static final int ZOOM = 2;
+    public static final int TYPE = 7;
 
     private JFrame frame;
     private BufferedImage bi;
 
     private final double LIMITER = 2.0;
-    private final int DEPTH = 1000;
+    private final int DEPTH = 600;
 
     private double centerReal, centerImag, rangeReal, rangeImag;
 
@@ -45,7 +46,7 @@ public class Mandelbrot {
         long t = new Date().getTime() - now;
 
         System.out.println("MandelArray: " + t/1000.0 + " sec");
-        int[] pixelArray = getPixelArray(mandelArray, 8);
+        int[] pixelArray = getPixelArray(mandelArray);
         System.out.println("PixelArray:  " + (new Date().getTime() - now - t)/1000.0 + " sec");
         bi.setRGB(0,0,WIDTH, HEIGHT, pixelArray, 0,WIDTH);
 
@@ -84,14 +85,14 @@ public class Mandelbrot {
         return d;
     }
 
-    public int[] getPixelArray(int[] _mandelArray, int type) {
+    public int[] getPixelArray(int[] _mandelArray) {
         int d;
         int r, g, b;
         float hue;
         int[] result = new int[_mandelArray.length];
         for (int i = 0; i < _mandelArray.length; i++) {
             d = _mandelArray[i];
-            switch (type) {
+            switch (TYPE) {
                 case 0:
                     //BLACK & WHITE
                     result[i] = (d == DEPTH) ? Color.BLACK.getRGB() : Color.WHITE.getRGB();
