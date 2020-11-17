@@ -1,15 +1,21 @@
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Mandelbrot {
 
-    private final int WIDTH = 600;
-    private final int HEIGHT = 600;
+    public static final int WIDTH = 600;
+    public static final int HEIGHT = 600;
+    public static final int ZOOM = 2;
+
+    private JFrame frame;
+    private BufferedImage bi;
 
     private final double LIMITER = 2.0;
     private final int DEPTH = 100;
 
     private double centerReal, centerImag, rangeReal, rangeImag;
+
 
 
     public Mandelbrot() {
@@ -19,13 +25,24 @@ public class Mandelbrot {
         rangeReal = 2.5;
         rangeImag = 2.5;
 
+        bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+        startMandel();
+
+        frame = new JFrame("Mandelbrot");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(new ViewerPanel(bi, this));
+        frame.pack();
+        frame.setVisible(true);
+
+    }
+
+    public void startMandel() {
+        System.out.println("CENTER: " + centerReal + ", " + centerImag);
+        System.out.println("RANGE REAL: " + rangeReal + ",  RANGE IMAG: " + rangeImag);
         int[] mandelArray = getMandelArray();
         int[] pixelArray = getPixelArray(mandelArray, 1);
-
-        BufferedImage bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         bi.setRGB(0,0,WIDTH, HEIGHT, pixelArray, 0,WIDTH);
 
-        new Viewer(bi);
     }
 
     private int[] getMandelArray() {
@@ -77,10 +94,45 @@ public class Mandelbrot {
         return result;
     }
 
+    public double getCenterReal() {
+        return centerReal;
+    }
+
+    public void setCenterReal(double centerReal) {
+        this.centerReal = centerReal;
+    }
+
+    public double getCenterImag() {
+        return centerImag;
+    }
+
+    public void setCenterImag(double centerImag) {
+        this.centerImag = centerImag;
+    }
+
+    public double getRangeReal() {
+        return rangeReal;
+    }
+
+    public void setRangeReal(double rangeReal) {
+        this.rangeReal = rangeReal;
+    }
+
+    public double getRangeImag() {
+        return rangeImag;
+    }
+
+    public void setRangeImag(double rangeImag) {
+        this.rangeImag = rangeImag;
+    }
+
+
 
 
     public static void main(String[] args) {
         new Mandelbrot();
     }
+
+
 
 }
