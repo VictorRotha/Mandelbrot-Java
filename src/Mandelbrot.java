@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Date;
 
 public class Mandelbrot {
@@ -27,12 +30,7 @@ public class Mandelbrot {
 
         bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         startMandel();
-
-        frame = new JFrame("Mandelbrot");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new ViewerPanel(bi, this));
-        frame.pack();
-        frame.setVisible(true);
+        new Viewer(this);
 
     }
 
@@ -189,8 +187,9 @@ public class Mandelbrot {
         this.rangeImag = rangeImag;
     }
 
-
-
+    public BufferedImage getBi() {
+        return bi;
+    }
 
     public static void main(String[] args) {
         new Mandelbrot();

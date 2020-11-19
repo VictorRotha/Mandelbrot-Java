@@ -2,24 +2,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 
 public class ViewerPanel extends JPanel implements MouseListener{
 
-    private BufferedImage bi;
     private Mandelbrot mandelbrot;
 
-    public ViewerPanel(BufferedImage _bi, Mandelbrot _mandelbrot) {
-        bi = _bi;
+    public ViewerPanel(Mandelbrot _mandelbrot) {
         mandelbrot = _mandelbrot;
-        setPreferredSize(new Dimension(bi.getWidth(), bi.getHeight()));
+        setPreferredSize(new Dimension(Mandelbrot.WIDTH, Mandelbrot.HEIGHT));
         addMouseListener(this);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(bi, 0,0,null);
+        g2d.drawImage(mandelbrot.getBi(), 0,0,null);
     }
 
     @Override
