@@ -15,13 +15,12 @@ public class Viewer extends JFrame implements ActionListener{
 
     public Viewer(Mandelbrot _mandelbrot) {
 
-
-
         MB = _mandelbrot;
         setTitle("Mandelbrot");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        add(new ViewerPanel(_mandelbrot));
+        add(new JScrollPane(new ViewerPanel(_mandelbrot)));
+//        add(new ViewerPanel(_mandelbrot));
 
         JMenuBar menuBar = createMainMenu();
         setJMenuBar(menuBar);

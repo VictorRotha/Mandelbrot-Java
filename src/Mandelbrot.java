@@ -9,13 +9,13 @@ public class Mandelbrot {
     public static final int ZOOM = 2;
 
     public static final double LIMITER = 2.0;
-    public  int depth;
 
-
-    public static final String[] COLOR_FILTERS =
-            {"Black&White", "Grayscale", "RGB One", "RGB Two", "RGB Red", "HSB One", "HSB Two", "HSB Log", "HSB sin"};
+    public static final String[] COLOR_FILTERS = {
+            "Black&White", "Grayscale", "RGB One", "RGB Two", "RGB Red",
+            "HSB One", "HSB Two", "HSB Log", "HSB sin", "HSB Log1p", "HSB 3"};
 
     private String filter;
+    public int depth;
     private double dur;
     private BufferedImage bi;
 
@@ -87,6 +87,7 @@ public class Mandelbrot {
     }
 
     public int[] calcPixelArray(int[] _mandelArray) {
+        //TODO filter options log, ln, sin, recursive, ...
         int d;
         int r, g, b;
         float hue;
@@ -152,6 +153,17 @@ public class Mandelbrot {
                     //HSB sin
                     hue = 0.4f + 0.4f * (float) (Math.sin(d)/Math.sin(depth));
                     result[i] = Color.getHSBColor(hue, 0.9f, 0.9f).getRGB();
+                    break;
+                case 9:
+                    //HSB log10
+                    hue = 0.4f + 0.4f * (float) (Math.log1p(d)/Math.log1p(depth));
+                    result[i] = Color.getHSBColor(hue, 0.9f, 0.9f).getRGB();
+                    break;
+                case 10:
+                    //HSB 3
+                    hue = 0.16f * d / depth;
+                    brightness = 0.3f + 0.7f * d/depth;
+                    result[i] = Color.getHSBColor(hue, 0.9f, brightness).getRGB();
                     break;
 
             }
