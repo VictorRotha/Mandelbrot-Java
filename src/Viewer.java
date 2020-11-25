@@ -60,12 +60,31 @@ public class Viewer extends JFrame implements ActionListener{
        mnuBar.add(mnuFilter);
 
        JMenu mnuDepth = new JMenu("Depth");
+       JRadioButtonMenuItem btnDepth;
+       ButtonGroup grpDepth = new ButtonGroup();
+       String name;
+       for (int i = 0; i < MNU_DEPTHS.length; i++) {
+           name = MNU_DEPTHS[i];
+           btnDepth = new JRadioButtonMenuItem(name);
+           btnDepth.addActionListener(this);
+           mnuDepth.add(btnDepth);
+           grpDepth.add(btnDepth);
+           switch (MB.getDepth()) {
+              case 600:
+                  if (i == 0) {btnDepth.setSelected(true);}
+                  break;
+              case 800:
+                  if (i == 1) {btnDepth.setSelected(true);}
+                  break;
+              case 1000:
+                  if (i == 2) {btnDepth.setSelected(true);}
+                  break;
+               default:
+                   if ( i == 3) {btnDepth.setSelected(true);}
+                   break;
 
-       JMenuItem item;
-       for (String name: MNU_DEPTHS) {
-           item = new JMenuItem(name);
-           item.addActionListener(this);
-           mnuDepth.add(item);
+          }
+
        }
 
        mnuBar.add(mnuDepth);
@@ -128,7 +147,14 @@ public class Viewer extends JFrame implements ActionListener{
                     newDepth = 1000;
                     break;
                 case 3:
-                    String result = JOptionPane.showInputDialog("DEPTH");
+                    String result = (String) JOptionPane.showInputDialog(
+                            null,
+                            "New Recursion Depth:",
+                            "DEPTH",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            null,
+                            MB.getDepth());
                     try {
                         newDepth = Integer.parseInt(result);
                     } catch (NumberFormatException numberFormatExceptione) {
