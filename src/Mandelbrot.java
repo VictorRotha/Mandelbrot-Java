@@ -8,14 +8,13 @@ public class Mandelbrot {
     public static final int HEIGHT = 800;
     public static final int ZOOM = 2;
 
-    public static final double LIMITER = 2.0;
-
     public static final String[] COLOR_FILTERS = {
             "Black&White", "Grayscale", "RGB One", "RGB Two", "RGB Red",
             "HSB One", "HSB Two", "HSB Log", "HSB sin", "HSB Log1p", "HSB 3"};
 
     private String filter;
     public int depth;
+    public double limiter;
     private double dur;
     private BufferedImage bi;
 
@@ -31,6 +30,7 @@ public class Mandelbrot {
 
         filter = COLOR_FILTERS[4];
         depth = 600;
+        limiter = 2.0;
 
         bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         startMandel();
@@ -78,7 +78,7 @@ public class Mandelbrot {
         for (int i = 0; i < depth; i++) {
             z.mult(z);
             z.sub(c);
-            if (z.abs() > LIMITER) {
+            if (z.abs() > limiter) {
                 d = i;
                 break;
             }
@@ -180,7 +180,7 @@ public class Mandelbrot {
                 "IMAG Range: %s, Center %s\n" +
                 "Color Filter %s\n";
 
-        return String.format(formatString, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, depth, LIMITER, rangeReal, centerReal,
+        return String.format(formatString, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, depth, limiter, rangeReal, centerReal,
                 rangeImag, centerImag, filter);
 
     }
@@ -243,6 +243,14 @@ public class Mandelbrot {
 
     public void setDepth(int depth) {
         this.depth = depth;
+    }
+
+    public double getLimiter() {
+        return limiter;
+    }
+
+    public void setLimiter(double limiter) {
+        this.limiter = limiter;
     }
 
     public static void main(String[] args) {
