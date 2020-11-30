@@ -8,7 +8,7 @@ public class Mandelbrot {
     public static final int HEIGHT = 800;
     public static final int ZOOM = 2;
 
-    public static final String[] COLOR_FILTERS = {
+    public final String[] COLOR_FILTERS = {
             "Black&White", "Grayscale", "RGB One", "RGB Two", "RGB Red",
             "HSB One", "HSB Two", "HSB Log", "HSB sin", "HSB Log1p", "HSB 3"};
 

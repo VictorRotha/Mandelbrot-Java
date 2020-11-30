@@ -10,10 +10,12 @@ import java.util.Arrays;
 public class Viewer extends JFrame implements ActionListener{
 
     private final String MNU_CUSTOM_LIMIT = "Custom Limit ...";
+    private final String MNU_INFO = "Info";
 
     private final Mandelbrot MB;
     private String filepath;
     private final String[] MNU_DEPTHS = {"Recursion Depth 600", "Recursion Depth 800", "Recursion Depth 1000", "Custom ..."};
+
 
     public Viewer(Mandelbrot _mandelbrot) {
 
@@ -49,7 +51,7 @@ public class Viewer extends JFrame implements ActionListener{
        JMenu mnuFilter = new JMenu("Filter");
        JRadioButtonMenuItem btn;
        ButtonGroup grp = new ButtonGroup();
-       for (String name: Mandelbrot.COLOR_FILTERS) {
+       for (String name: MB.COLOR_FILTERS) {
            btn = new JRadioButtonMenuItem(name);
            if (name.equals(MB.getFilter())) {
                btn.setSelected(true);
@@ -57,7 +59,6 @@ public class Viewer extends JFrame implements ActionListener{
            btn.addActionListener(this);
            grp.add(btn);
            mnuFilter.add(btn);
-
        }
        mnuBar.add(mnuFilter);
 
@@ -114,6 +115,10 @@ public class Viewer extends JFrame implements ActionListener{
        }
 
        mnuBar.add(mnuLimit);
+
+       JMenuItem itmInfo = new JMenuItem(MNU_INFO);
+       itmInfo.addActionListener(this);
+       mnuBar.add(itmInfo);
 
        return mnuBar;
     }
@@ -196,11 +201,18 @@ public class Viewer extends JFrame implements ActionListener{
                 MB.startMandel();
                 repaint();
             }
-        } else  if (Arrays.asList(Mandelbrot.COLOR_FILTERS).contains(e.getActionCommand())) {
+        } else  if (Arrays.asList(MB.COLOR_FILTERS).contains(e.getActionCommand())) {
             System.out.println("\nChange Color Filter: " + e.getActionCommand());
             MB.setFilter(e.getActionCommand());
             MB.getBi().setRGB(0, 0, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, MB.calcPixelArray(MB.getMandelArray()), 0, Mandelbrot.WIDTH);
             repaint();
+        } else if (e.getActionCommand().equals(MNU_INFO)) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    MB.mandelInfo(),
+                    "INFO",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null);
         } else {
             double newLimit = MB.getLimiter();
             if (e.getActionCommand().equals(MNU_CUSTOM_LIMIT)) {
