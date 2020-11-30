@@ -10,12 +10,14 @@ import java.util.Arrays;
 public class Viewer extends JFrame implements ActionListener{
 
     private final String MNU_CUSTOM_LIMIT = "Custom Limit ...";
+    private final String MNU_CUSTOM_DEPTH = "Custom Depth ...";
     private final String MNU_INFO = "Info";
+
+    private final String[] MNU_DEPTHS = {"600", "800", "1000"};
+    private final String[] MNU_LIMITS = {"1.0", "2.0", "5.0"};
 
     private final Mandelbrot MB;
     private String filepath;
-    private final String[] MNU_DEPTHS = {"Recursion Depth 600", "Recursion Depth 800", "Recursion Depth 1000", "Custom ..."};
-
 
     public Viewer(Mandelbrot _mandelbrot) {
 
@@ -24,7 +26,6 @@ public class Viewer extends JFrame implements ActionListener{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         add(new JScrollPane(new ViewerPanel(_mandelbrot)));
-//        add(new ViewerPanel(_mandelbrot));
 
         JMenuBar menuBar = createMainMenu();
         setJMenuBar(menuBar);
@@ -65,41 +66,30 @@ public class Viewer extends JFrame implements ActionListener{
        JMenu mnuDepth = new JMenu("Depth");
        JRadioButtonMenuItem btnDepth;
        ButtonGroup grpDepth = new ButtonGroup();
-       for (int i = 0; i < MNU_DEPTHS.length; i++) {
-           String name = MNU_DEPTHS[i];
-           btnDepth = new JRadioButtonMenuItem(name);
+       for (String depth: MNU_DEPTHS) {
+           btnDepth = new JRadioButtonMenuItem(depth);
            btnDepth.addActionListener(this);
            mnuDepth.add(btnDepth);
            grpDepth.add(btnDepth);
-           switch (MB.getDepth()) {
-              case 600:
-                  if (i == 0) {btnDepth.setSelected(true);}
-                  break;
-              case 800:
-                  if (i == 1) {btnDepth.setSelected(true);}
-                  break;
-              case 1000:
-                  if (i == 2) {btnDepth.setSelected(true);}
-                  break;
-               default:
-                   if ( i == 3) {btnDepth.setSelected(true);}
-                   break;
-
-          }
-
+           if (depth.equals(String.valueOf(MB.getDepth()))) {
+               btnDepth.setSelected(true);
+           }
        }
+        btnDepth = new JRadioButtonMenuItem(MNU_CUSTOM_DEPTH);
+        btnDepth.addActionListener(this);
+        mnuDepth.add(btnDepth);
+        grpDepth.add(btnDepth);
+        if (!Arrays.asList(MNU_DEPTHS).contains(String.valueOf(MB.getDepth()))) {
+            btnDepth.setSelected(true);
+        }
        mnuBar.add(mnuDepth);
 
        JMenu mnuLimit = new JMenu("Limit");
-       Double[] limits = {1.0, 2.0, 5.0};
-
        ButtonGroup grpLimit = new ButtonGroup();
        JRadioButtonMenuItem btnLimit;
-       for (double limit: limits) {
-
-           String name = String.valueOf(limit);
-           btnLimit = new JRadioButtonMenuItem(name);
-           if (limit == MB.getLimiter()) {
+       for (String limit: MNU_LIMITS) {
+           btnLimit = new JRadioButtonMenuItem(limit);
+           if (limit.equals(String.valueOf(MB.getLimiter()))) {
                btnLimit.setSelected(true);
            }
            btnLimit.addActionListener(this);
@@ -110,10 +100,9 @@ public class Viewer extends JFrame implements ActionListener{
        btnLimit.addActionListener(this);
        grpLimit.add(btnLimit);
        mnuLimit.add(btnLimit);
-       if (!Arrays.asList(limits).contains(MB.getLimiter())) {
+       if (!Arrays.asList(MNU_LIMITS).contains(String.valueOf(MB.getLimiter()))) {
            btnLimit.setSelected(true);
        }
-
        mnuBar.add(mnuLimit);
 
        JMenuItem itmInfo = new JMenuItem(MNU_INFO);
@@ -166,33 +155,26 @@ public class Viewer extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
 //        System.out.println(e.getActionCommand() + " " + e.getSource().toString());
 
-        if (Arrays.asList(MNU_DEPTHS).contains(e.getActionCommand())) {
+        String ac = e.getActionCommand();
+
+        if (Arrays.asList(MNU_DEPTHS).contains(ac) || ac.equals(MNU_CUSTOM_DEPTH)) {
             int newDepth = MB.getDepth();
-            switch (Arrays.asList(MNU_DEPTHS).indexOf(e.getActionCommand())) {
-                case 0:
-                    newDepth = 600;
-                    break;
-                case 1:
-                    newDepth = 800;
-                    break;
-                case 2:
-                    newDepth = 1000;
-                    break;
-                case 3:
-                    String result = (String) JOptionPane.showInputDialog(
-                            null,
-                            "New Recursion Depth:",
-                            "DEPTH",
-                            JOptionPane.PLAIN_MESSAGE,
-                            null,
-                            null,
-                            MB.getDepth());
-                    try {
-                        newDepth = Integer.parseInt(result);
-                    } catch (NumberFormatException numberFormatExceptione) {
-                        System.out.println("\nPlease Enter Integer Number!!!");
-                    }
-                    break;
+            if (ac.equals(MNU_CUSTOM_DEPTH)) {
+                String result = (String) JOptionPane.showInputDialog(
+                        null,
+                        "New Recursion Depth:",
+                        "DEPTH",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        MB.getDepth());
+                try {
+                    newDepth = Integer.parseInt(result);
+                } catch (NumberFormatException ex) {
+                    System.out.println(result + " Not Valid");
+                }
+            } else {
+                newDepth = Integer.parseInt(ac);
             }
 
             if (newDepth != MB.getDepth()) {
@@ -201,21 +183,9 @@ public class Viewer extends JFrame implements ActionListener{
                 MB.startMandel();
                 repaint();
             }
-        } else  if (Arrays.asList(MB.COLOR_FILTERS).contains(e.getActionCommand())) {
-            System.out.println("\nChange Color Filter: " + e.getActionCommand());
-            MB.setFilter(e.getActionCommand());
-            MB.getBi().setRGB(0, 0, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, MB.calcPixelArray(MB.getMandelArray()), 0, Mandelbrot.WIDTH);
-            repaint();
-        } else if (e.getActionCommand().equals(MNU_INFO)) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    MB.mandelInfo(),
-                    "INFO",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null);
-        } else {
+        } else if (Arrays.asList(MNU_LIMITS).contains(ac) || ac.equals(MNU_CUSTOM_LIMIT)) {
             double newLimit = MB.getLimiter();
-            if (e.getActionCommand().equals(MNU_CUSTOM_LIMIT)) {
+            if (ac.equals(MNU_CUSTOM_LIMIT)) {
                 String result = (String) JOptionPane.showInputDialog(
                         null,
                         "New Limit:",
@@ -226,18 +196,30 @@ public class Viewer extends JFrame implements ActionListener{
                         MB.getLimiter());
                 try {
                     newLimit = Double.parseDouble(result);
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please Enter Number!");
+                } catch (Exception ex) {
+                    System.out.println(result + " Not Valid");
                 }
             } else {
-                newLimit = Double.parseDouble(e.getActionCommand());
+                newLimit = Double.parseDouble(ac);
             }
-                if (newLimit != MB.getLimiter()) {
-                    System.out.println("\nChange Limiter ...");
-                    MB.setLimiter(newLimit);
-                    MB.startMandel();
-                    repaint();
-                }
+            if (newLimit != MB.getLimiter()) {
+                System.out.println("\nChange Limiter ...");
+                MB.setLimiter(newLimit);
+                MB.startMandel();
+                repaint();
             }
+        } else if (Arrays.asList(MB.COLOR_FILTERS).contains(ac)) {
+            System.out.println("\nChange Color Filter: " + ac);
+            MB.setFilter(ac);
+            MB.getBi().setRGB(0, 0, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, MB.calcPixelArray(MB.getMandelArray()), 0, Mandelbrot.WIDTH);
+            repaint();
+        } else if (e.getActionCommand().equals(MNU_INFO)) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    MB.mandelInfo(),
+                    "INFO",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null);
+        }
     }
 }
