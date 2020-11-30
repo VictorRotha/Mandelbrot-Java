@@ -5,10 +5,10 @@ import java.awt.event.MouseListener;
 
 public class ViewerPanel extends JPanel implements MouseListener{
 
-    private Mandelbrot mandelbrot;
+    private final Mandelbrot MB;
 
     public ViewerPanel(Mandelbrot _mandelbrot) {
-        mandelbrot = _mandelbrot;
+        MB = _mandelbrot;
         setPreferredSize(new Dimension(Mandelbrot.WIDTH, Mandelbrot.HEIGHT));
         addMouseListener(this);
     }
@@ -16,27 +16,27 @@ public class ViewerPanel extends JPanel implements MouseListener{
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(mandelbrot.getBi(), 0,0,null);
+        g2d.drawImage(MB.getBi(), 0,0,null);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        double real = (mandelbrot.getRangeReal() / Mandelbrot.WIDTH) * e.getX()
-                + mandelbrot.getCenterReal() - mandelbrot.getRangeReal() / 2;
-        double imag = (mandelbrot.getRangeImag() / Mandelbrot.HEIGHT) * e.getY()
-                + mandelbrot.getCenterImag() - mandelbrot.getRangeImag() / 2;
+        double real = (MB.getRangeReal() / Mandelbrot.WIDTH) * e.getX()
+                + MB.getCenterReal() - MB.getRangeReal() / 2;
+        double imag = (MB.getRangeImag() / Mandelbrot.HEIGHT) * e.getY()
+                + MB.getCenterImag() - MB.getRangeImag() / 2;
 
-        mandelbrot.setCenterReal(real);
-        mandelbrot.setCenterImag(imag);
+        MB.setCenterReal(real);
+        MB.setCenterImag(imag);
         if (e.getButton() == MouseEvent.BUTTON1) {
-            mandelbrot.setRangeReal(mandelbrot.getRangeReal() / Mandelbrot.ZOOM);
-            mandelbrot.setRangeImag(mandelbrot.getRangeImag() / Mandelbrot.ZOOM);
+            MB.setRangeReal(MB.getRangeReal() / MB.getZoom());
+            MB.setRangeImag(MB.getRangeImag() / MB.getZoom());
         } else if (e.getButton() == MouseEvent.BUTTON3) {
-            mandelbrot.setRangeReal(mandelbrot.getRangeReal() * Mandelbrot.ZOOM);
-            mandelbrot.setRangeImag(mandelbrot.getRangeImag() * Mandelbrot.ZOOM);
+            MB.setRangeReal(MB.getRangeReal() * MB.getZoom());
+            MB.setRangeImag(MB.getRangeImag() * MB.getZoom());
         }
 
-        mandelbrot.startMandel();
+        MB.startMandel();
         repaint();
     }
 

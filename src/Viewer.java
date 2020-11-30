@@ -15,6 +15,7 @@ public class Viewer extends JFrame implements ActionListener{
 
     private final String[] MNU_DEPTHS = {"600", "800", "1000"};
     private final String[] MNU_LIMITS = {"1.0", "2.0", "5.0"};
+    private final String[] MNU_ZOOMS = {"2", "3", "5", "10"};
 
     private final Mandelbrot MB;
     private String filepath;
@@ -104,6 +105,20 @@ public class Viewer extends JFrame implements ActionListener{
            btnLimit.setSelected(true);
        }
        mnuBar.add(mnuLimit);
+
+       JMenu mnuZoom = new JMenu("Zoom");
+       JMenuItem btnZoom;
+       ButtonGroup grpZoom = new ButtonGroup();
+       for (String zoom : MNU_ZOOMS) {
+           btnZoom = new JMenuItem(zoom + "x");
+           btnZoom.addActionListener(this);
+           grpZoom.add(btnZoom);
+           mnuZoom.add(btnZoom);
+           if (zoom.equals(String.valueOf(MB.getZoom()))) {
+               btnZoom.setSelected(true);
+           }
+       }
+       mnuBar.add(mnuZoom);
 
        JMenuItem itmInfo = new JMenuItem(MNU_INFO);
        itmInfo.addActionListener(this);
@@ -213,9 +228,15 @@ public class Viewer extends JFrame implements ActionListener{
             MB.setFilter(ac);
             MB.getBi().setRGB(0, 0, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, MB.calcPixelArray(MB.getMandelArray()), 0, Mandelbrot.WIDTH);
             repaint();
+        } else if (ac.endsWith("x")) {
+//            int newZoom = MB.getZoom();
+            int newZoom = Integer.parseInt(ac.substring(0, ac.length()-1));
+            MB.setZoom(newZoom);
+
+
         } else if (e.getActionCommand().equals(MNU_INFO)) {
             JOptionPane.showMessageDialog(
-                    null,
+                    this,
                     MB.mandelInfo(),
                     "INFO",
                     JOptionPane.PLAIN_MESSAGE,

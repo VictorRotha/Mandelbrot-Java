@@ -6,15 +6,15 @@ public class Mandelbrot {
 
     public static final int WIDTH = 800;
     public static final int HEIGHT = 800;
-    public static final int ZOOM = 2;
 
     public final String[] COLOR_FILTERS = {
             "Black&White", "Grayscale", "RGB One", "RGB Two", "RGB Red",
             "HSB One", "HSB Two", "HSB Log", "HSB sin", "HSB Log1p", "HSB 3"};
 
     private String filter;
-    public int depth;
-    public double limiter;
+    private int zoom;
+    private int depth;
+    private double limiter;
     private double dur;
     private BufferedImage bi;
 
@@ -31,6 +31,7 @@ public class Mandelbrot {
         filter = COLOR_FILTERS[4];
         depth = 600;
         limiter = 2.0;
+        zoom = 2;
 
         bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         startMandel();
@@ -251,6 +252,14 @@ public class Mandelbrot {
 
     public void setLimiter(double limiter) {
         this.limiter = limiter;
+    }
+
+    public int getZoom() {
+        return zoom;
+    }
+
+    public void setZoom(int zoom) {
+        this.zoom = zoom;
     }
 
     public static void main(String[] args) {
