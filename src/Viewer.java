@@ -1,6 +1,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -19,6 +20,7 @@ public class Viewer extends JFrame implements ActionListener{
 
     private final Mandelbrot MB;
     private String filepath;
+    private ViewerPanel vp;
 
     public Viewer(Mandelbrot _mandelbrot) {
 
@@ -26,7 +28,9 @@ public class Viewer extends JFrame implements ActionListener{
         setTitle("Mandelbrot");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        add(new JScrollPane(new ViewerPanel(_mandelbrot)));
+        vp = new ViewerPanel(_mandelbrot);
+
+        add(new JScrollPane(vp));
 
         JMenuBar menuBar = createMainMenu();
         setJMenuBar(menuBar);
@@ -43,11 +47,41 @@ public class Viewer extends JFrame implements ActionListener{
        JMenuItem itmSave = new JMenuItem("Save Image");
        JCheckBoxMenuItem itmChkInfo = new JCheckBoxMenuItem("Save Info");
        itmChkInfo.setState(true);
+       JMenuItem itmSize = new JMenuItem("Image Size");
 
        itmSave.addActionListener(e -> saveToFile(itmChkInfo.getState()));
+       itmSize.addActionListener(e -> {
+           String result = (String) JOptionPane.showInputDialog(
+                   this,
+                   "New Size:",
+                   "IMAGE SIZE",
+                   JOptionPane.PLAIN_MESSAGE,
+                   null,
+                   null,
+                   MB.getWidth());
+           // for now: width == height
+           int newSize = MB.getWidth();
+           try {
+               newSize = Integer.parseInt(result);
+           } catch (Exception ex) {
+               System.out.println(result + " Not Valid");
+           }
+           if (newSize != MB.getWidth()) {
+               System.out.println("\nChange Image Size ... ");
+               MB.setWidth(newSize);
+               MB.setHeight(newSize);
+               vp.setPreferredSize(new Dimension(newSize, newSize));
+               MB.startMandel();
+               pack();
+               repaint();
+           }
+
+
+       });
 
        mnuFile.add(itmSave);
        mnuFile.add(itmChkInfo);
+       mnuFile.add(itmSize);
        mnuBar.add(mnuFile);
 
        JMenu mnuFilter = new JMenu("Filter");
@@ -110,7 +144,7 @@ public class Viewer extends JFrame implements ActionListener{
        JMenuItem btnZoom;
        ButtonGroup grpZoom = new ButtonGroup();
        for (String zoom : MNU_ZOOMS) {
-           btnZoom = new JMenuItem(zoom + "x");
+           btnZoom = new JRadioButtonMenuItem(zoom + "x");
            btnZoom.addActionListener(this);
            grpZoom.add(btnZoom);
            mnuZoom.add(btnZoom);
@@ -176,7 +210,7 @@ public class Viewer extends JFrame implements ActionListener{
             int newDepth = MB.getDepth();
             if (ac.equals(MNU_CUSTOM_DEPTH)) {
                 String result = (String) JOptionPane.showInputDialog(
-                        null,
+                        this,
                         "New Recursion Depth:",
                         "DEPTH",
                         JOptionPane.PLAIN_MESSAGE,
@@ -202,7 +236,7 @@ public class Viewer extends JFrame implements ActionListener{
             double newLimit = MB.getLimiter();
             if (ac.equals(MNU_CUSTOM_LIMIT)) {
                 String result = (String) JOptionPane.showInputDialog(
-                        null,
+                        this,
                         "New Limit:",
                         "LIMIT",
                         JOptionPane.PLAIN_MESSAGE,
@@ -226,7 +260,7 @@ public class Viewer extends JFrame implements ActionListener{
         } else if (Arrays.asList(MB.COLOR_FILTERS).contains(ac)) {
             System.out.println("\nChange Color Filter: " + ac);
             MB.setFilter(ac);
-            MB.getBi().setRGB(0, 0, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, MB.calcPixelArray(MB.getMandelArray()), 0, Mandelbrot.WIDTH);
+            MB.getBi().setRGB(0, 0, MB.getWidth(), MB.getHeight(), MB.calcPixelArray(MB.getMandelArray()), 0, MB.getWidth());
             repaint();
         } else if (ac.endsWith("x")) {
 //            int newZoom = MB.getZoom();

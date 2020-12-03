@@ -4,14 +4,15 @@ import java.util.Arrays;
 
 public class Mandelbrot {
 
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 800;
+//    public static final int WIDTH = 1920;
+//    public static final int HEIGHT = 1920;
 
     public final String[] COLOR_FILTERS = {
             "Black&White", "Grayscale", "RGB One", "RGB Two", "RGB Red",
-            "HSB One", "HSB Two", "HSB Log", "HSB sin", "HSB Log1p", "HSB 3"};
+            "HSB One", "HSB Two", "HSB Log", "HSB sin", "HSB Log1p", "HSB 3", "HSB 4"};
 
     private String filter;
+    private int width, height;
     private int zoom;
     private int depth;
     private double limiter;
@@ -28,12 +29,12 @@ public class Mandelbrot {
         rangeReal = 2.5;
         rangeImag = 2.5;
 
+        width = height = 600;
         filter = COLOR_FILTERS[4];
         depth = 600;
         limiter = 2.0;
         zoom = 2;
 
-        bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         startMandel();
         new Viewer(this);
 
@@ -43,17 +44,18 @@ public class Mandelbrot {
         System.out.println("\nCalculate New Image:");
         System.out.println(mandelInfo());
 
+        bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         mandelArray = calcMandelArray();
         int[] pixelArray = calcPixelArray(mandelArray);
-        bi.setRGB(0,0,WIDTH, HEIGHT, pixelArray, 0,WIDTH);
+        bi.setRGB(0,0,width, height, pixelArray, 0,width);
 
     }
 
     private int[] calcMandelArray() {
         long start = System.nanoTime();
         int m;
-        int[] pixels = new int[WIDTH * HEIGHT];
-        for (int i = 0; i < WIDTH * HEIGHT; i++) {
+        int[] pixels = new int[width * height];
+        for (int i = 0; i < width * height; i++) {
             m = calcMandel(i);
             pixels[i] = m;
         }
@@ -66,11 +68,11 @@ public class Mandelbrot {
 
     private int calcMandel(int _index) {
 
-        int row = _index / WIDTH;
-        int col = _index % WIDTH;
+        int row = _index / width;
+        int col = _index % width;
 
-        double real = (rangeReal / WIDTH) * col + centerReal - rangeReal / 2;
-        double imag = (rangeImag / HEIGHT) * row + centerImag - rangeImag / 2;
+        double real = (rangeReal / width) * col + centerReal - rangeReal / 2;
+        double imag = (rangeImag / height) * row + centerImag - rangeImag / 2;
 
         Complex c = new Complex(real, imag);
         Complex z = new Complex(0, 0);
@@ -166,6 +168,22 @@ public class Mandelbrot {
                     brightness = 0.3f + 0.7f * d/depth;
                     result[i] = Color.getHSBColor(hue, 0.9f, brightness).getRGB();
                     break;
+                case 11:
+                    //HSB 4
+                    hue = 0.0f;
+                    float rel = (float) d/depth;
+//                    float rel = (float) (Math.log(d)/Math.log(depth));
+                    if (rel == 1) {
+                        brightness = 0.0f;
+                    }
+                    else if (rel < 0.3f) {
+                        brightness = (1/0.3f) * rel;
+                    } else {
+                        hue = 0.16f * (rel - 0.3f) / 0.7f;
+                        brightness = 1.0f;
+                    }
+                    result[i] = Color.getHSBColor(hue, 0.9f, brightness).getRGB();
+                    break;
 
             }
           }
@@ -181,7 +199,7 @@ public class Mandelbrot {
                 "IMAG Range: %s, Center %s\n" +
                 "Color Filter %s\n";
 
-        return String.format(formatString, Mandelbrot.WIDTH, Mandelbrot.HEIGHT, depth, limiter, rangeReal, centerReal,
+        return String.format(formatString, width, height, depth, limiter, rangeReal, centerReal,
                 rangeImag, centerImag, filter);
 
     }
@@ -262,10 +280,24 @@ public class Mandelbrot {
         this.zoom = zoom;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
     public static void main(String[] args) {
         new Mandelbrot();
     }
-
-
 
 }

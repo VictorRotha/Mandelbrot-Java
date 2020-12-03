@@ -9,7 +9,7 @@ public class ViewerPanel extends JPanel implements MouseListener{
 
     public ViewerPanel(Mandelbrot _mandelbrot) {
         MB = _mandelbrot;
-        setPreferredSize(new Dimension(Mandelbrot.WIDTH, Mandelbrot.HEIGHT));
+        setPreferredSize(new Dimension(MB.getWidth(), MB.getHeight()));
         addMouseListener(this);
     }
 
@@ -21,9 +21,9 @@ public class ViewerPanel extends JPanel implements MouseListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        double real = (MB.getRangeReal() / Mandelbrot.WIDTH) * e.getX()
+        double real = (MB.getRangeReal() / MB.getWidth()) * e.getX()
                 + MB.getCenterReal() - MB.getRangeReal() / 2;
-        double imag = (MB.getRangeImag() / Mandelbrot.HEIGHT) * e.getY()
+        double imag = (MB.getRangeImag() / MB.getHeight()) * e.getY()
                 + MB.getCenterImag() - MB.getRangeImag() / 2;
 
         MB.setCenterReal(real);
