@@ -21,16 +21,11 @@ public class Mandelbrot {
 
 
     public Mandelbrot() {
-        //imag -> height
-        //real -> width
+        //imag -> height, real -> width
 
-        centerReal = 0.5;
-        centerImag = 0;
-
-        rangeReal = 2.5;
-        rangeImag = 2.5;
-        width = 600;
-        height = 600;
+        centerReal = 0.5; centerImag = 0;
+        rangeReal = 2.5; rangeImag = 2.5;
+        width = 600; height = 600;
 
         filter = COLOR_FILTERS[4];
         depth = 600;
@@ -48,8 +43,7 @@ public class Mandelbrot {
 
         bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         mandelArray = calcMandelArray();
-        int[] pixelArray = calcPixelArray(mandelArray);
-        bi.setRGB(0,0,width, height, pixelArray, 0,width);
+        applyFilter();
 
     }
 
@@ -89,6 +83,11 @@ public class Mandelbrot {
             }
         }
         return d;
+    }
+
+    public void applyFilter() {
+        int[] pixelArray = calcPixelArray(mandelArray);
+        bi.setRGB(0,0,width, height, pixelArray, 0,width);
     }
 
     public int[] calcPixelArray(int[] _mandelArray) {

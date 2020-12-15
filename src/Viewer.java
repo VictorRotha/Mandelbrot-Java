@@ -3,20 +3,18 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.Arrays;
 
 
-public class Viewer extends JFrame implements ActionListener{
+public class Viewer extends JFrame {
 
-    private final String MNU_CUSTOM_LIMIT = "Custom Limit ...";
-    private final String MNU_CUSTOM_DEPTH = "Custom Depth ...";
     private final String MNU_INFO = "Info";
+    private final String MNU_CUSTOM_DEPTH = "Custom Depth ...";
+    private final String MNU_CUSTOM_LIMIT = "Custom Limit ...";
 
-    private final String[] MNU_DEPTHS = {"600", "800", "1000"};
-    private final String[] MNU_LIMITS = {"1.0", "2.0", "5.0"};
-    private final String[] MNU_ZOOMS = {"2", "3", "5", "10"};
+    private final String[] MNU_DEPTHS = {"600", "800", "1000", MNU_CUSTOM_DEPTH};
+    private final String[] MNU_LIMITS = {"1.0", "2.0", "5.0", MNU_CUSTOM_LIMIT};
+    private final String[] MNU_ZOOMS = {"2x", "3x", "5x", "10x"};
 
     private final Mandelbrot MB;
     private final ViewerPanel VP;
@@ -42,99 +40,45 @@ public class Viewer extends JFrame implements ActionListener{
     }
 
 
-
     private JMenuBar createMainMenu() {
-       JMenuBar mnuBar = new JMenuBar();
+        JMenuBar mnuBar = new JMenuBar();
 
-       JMenu mnuFile = new JMenu("File");
-       JMenuItem itmSave = new JMenuItem("Save Image");
-       JCheckBoxMenuItem itmChkInfo = new JCheckBoxMenuItem("Save Info");
-       itmChkInfo.setState(true);
-       JMenuItem itmSize = new JMenuItem("Image Size");
+        JMenu mnuFile = new JMenu("File");
+        JCheckBoxMenuItem itmChkInfo = new JCheckBoxMenuItem("Save Info");
+        itmChkInfo.setState(true);
+        JMenuItem itmSave = new JMenuItem("Save Image");
+        itmSave.addActionListener(e -> saveToFile(itmChkInfo.getState()));
+        JMenuItem itmSize = new JMenuItem("Image Size");
+        itmSize.addActionListener(e -> resizeDialog());
 
-       itmSave.addActionListener(e -> saveToFile(itmChkInfo.getState()));
-       itmSize.addActionListener(e -> resizeDialog());
+        mnuFile.add(itmSave);
+        mnuFile.add(itmChkInfo);
+        mnuFile.add(new JSeparator());
+        mnuFile.add(itmSize);
+        mnuBar.add(mnuFile);
 
-       mnuFile.add(itmSave);
-       mnuFile.add(itmChkInfo);
-       mnuFile.add(itmSize);
-       mnuBar.add(mnuFile);
+        CustomMenu mnuFilter = new CustomMenu("Filter", MB.COLOR_FILTERS, MB.getFilter(),
+                e -> {
+                    String ac = e.getActionCommand();
+                    System.out.println("\nChange Color Filter: " + ac);
+                    MB.setFilter(ac);
+                    MB.applyFilter();
+                    repaint();
+                });
+        mnuBar.add(mnuFilter);
 
-       JMenu mnuFilter = new JMenu("Filter");
-       JRadioButtonMenuItem btn;
-       ButtonGroup grp = new ButtonGroup();
-       for (String name: MB.COLOR_FILTERS) {
-           btn = new JRadioButtonMenuItem(name);
-           if (name.equals(MB.getFilter())) {
-               btn.setSelected(true);
-           }
-           btn.addActionListener(this);
-           grp.add(btn);
-           mnuFilter.add(btn);
-       }
-       mnuBar.add(mnuFilter);
+        CustomMenu mnuDepth = new CustomMenu("Depth", MNU_DEPTHS, MB.getDepth() + "", this::changeDepth);
+        mnuBar.add(mnuDepth);
+        CustomMenu mnuLimit = new CustomMenu("Limit", MNU_LIMITS, MB.getLimiter() + "", this::changeLimit);
+        mnuBar.add(mnuLimit);
+        CustomMenu mnuZoom = new CustomMenu("Zoom", MNU_ZOOMS,  MB.getZoom() + "x", this::changeZoom);
+        mnuBar.add(mnuZoom);
+        JMenuItem itmInfo = new JMenuItem(MNU_INFO);
+        itmInfo.addActionListener(e -> JOptionPane.showMessageDialog(
+                       this, MB.mandelInfo(), "INFO", JOptionPane.PLAIN_MESSAGE,null));
+        mnuBar.add(itmInfo);
 
-       JMenu mnuDepth = new JMenu("Depth");
-       JRadioButtonMenuItem btnDepth;
-       ButtonGroup grpDepth = new ButtonGroup();
-       for (String depth: MNU_DEPTHS) {
-           btnDepth = new JRadioButtonMenuItem(depth);
-           btnDepth.addActionListener(this);
-           mnuDepth.add(btnDepth);
-           grpDepth.add(btnDepth);
-           if (depth.equals(String.valueOf(MB.getDepth()))) {
-               btnDepth.setSelected(true);
-           }
-       }
-        btnDepth = new JRadioButtonMenuItem(MNU_CUSTOM_DEPTH);
-        btnDepth.addActionListener(this);
-        mnuDepth.add(btnDepth);
-        grpDepth.add(btnDepth);
-        if (!Arrays.asList(MNU_DEPTHS).contains(String.valueOf(MB.getDepth()))) {
-            btnDepth.setSelected(true);
-        }
-       mnuBar.add(mnuDepth);
-
-       JMenu mnuLimit = new JMenu("Limit");
-       ButtonGroup grpLimit = new ButtonGroup();
-       JRadioButtonMenuItem btnLimit;
-       for (String limit: MNU_LIMITS) {
-           btnLimit = new JRadioButtonMenuItem(limit);
-           if (limit.equals(String.valueOf(MB.getLimiter()))) {
-               btnLimit.setSelected(true);
-           }
-           btnLimit.addActionListener(this);
-           grpLimit.add(btnLimit);
-           mnuLimit.add(btnLimit);
-       }
-       btnLimit = new JRadioButtonMenuItem(MNU_CUSTOM_LIMIT);
-       btnLimit.addActionListener(this);
-       grpLimit.add(btnLimit);
-       mnuLimit.add(btnLimit);
-       if (!Arrays.asList(MNU_LIMITS).contains(String.valueOf(MB.getLimiter()))) {
-           btnLimit.setSelected(true);
-       }
-       mnuBar.add(mnuLimit);
-
-       JMenu mnuZoom = new JMenu("Zoom");
-       JMenuItem btnZoom;
-       ButtonGroup grpZoom = new ButtonGroup();
-       for (String zoom : MNU_ZOOMS) {
-           btnZoom = new JRadioButtonMenuItem(zoom + "x");
-           btnZoom.addActionListener(this);
-           grpZoom.add(btnZoom);
-           mnuZoom.add(btnZoom);
-           if (zoom.equals(String.valueOf(MB.getZoom()))) {
-               btnZoom.setSelected(true);
-           }
-       }
-       mnuBar.add(mnuZoom);
-
-       JMenuItem itmInfo = new JMenuItem(MNU_INFO);
-       itmInfo.addActionListener(this);
-       mnuBar.add(itmInfo);
-
-       return mnuBar;
+        return mnuBar;
     }
 
     private void resizeDialog() {
@@ -217,82 +161,65 @@ public class Viewer extends JFrame implements ActionListener{
 
     }
 
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-//        System.out.println(e.getActionCommand() + " " + e.getSource().toString());
-
-        String ac = e.getActionCommand();
-
-        if (Arrays.asList(MNU_DEPTHS).contains(ac) || ac.equals(MNU_CUSTOM_DEPTH)) {
-            int newDepth = MB.getDepth();
-            if (ac.equals(MNU_CUSTOM_DEPTH)) {
-                String result = (String) JOptionPane.showInputDialog(
-                        this,
-                        "New Recursion Depth:",
-                        "DEPTH",
-                        JOptionPane.PLAIN_MESSAGE,
-                        null,
-                        null,
-                        MB.getDepth());
-                try {
-                    newDepth = Integer.parseInt(result);
-                } catch (NumberFormatException ex) {
-                    System.out.println(result + " Not Valid");
-                }
-            } else {
-                newDepth = Integer.parseInt(ac);
-            }
-
-            if (newDepth != MB.getDepth()) {
-                MB.setDepth(newDepth);
-                System.out.println("\nChange Recursion Depth ... ");
-                MB.startMandel();
-                repaint();
-            }
-        } else if (Arrays.asList(MNU_LIMITS).contains(ac) || ac.equals(MNU_CUSTOM_LIMIT)) {
-            double newLimit = MB.getLimiter();
-            if (ac.equals(MNU_CUSTOM_LIMIT)) {
-                String result = (String) JOptionPane.showInputDialog(
-                        this,
-                        "New Limit:",
-                        "LIMIT",
-                        JOptionPane.PLAIN_MESSAGE,
-                        null,
-                        null,
-                        MB.getLimiter());
-                try {
-                    newLimit = Double.parseDouble(result);
-                } catch (Exception ex) {
-                    System.out.println(result + " Not Valid");
-                }
-            } else {
-                newLimit = Double.parseDouble(ac);
-            }
-            if (newLimit != MB.getLimiter()) {
-                System.out.println("\nChange Limiter ...");
-                MB.setLimiter(newLimit);
-                MB.startMandel();
-                repaint();
-            }
-        } else if (Arrays.asList(MB.COLOR_FILTERS).contains(ac)) {
-            System.out.println("\nChange Color Filter: " + ac);
-            MB.setFilter(ac);
-            MB.getBi().setRGB(0, 0, MB.getWidth(), MB.getHeight(), MB.calcPixelArray(MB.getMandelArray()), 0, MB.getWidth());
-            repaint();
-        } else if (ac.endsWith("x")) {
-//            int newZoom = MB.getZoom();
-            int newZoom = Integer.parseInt(ac.substring(0, ac.length()-1));
-            MB.setZoom(newZoom);
-
-
-        } else if (e.getActionCommand().equals(MNU_INFO)) {
-            JOptionPane.showMessageDialog(
+    private void changeDepth(ActionEvent e) {
+        String result = e.getActionCommand();
+        int newDepth = MB.getDepth();
+        if (result.equals(MNU_CUSTOM_DEPTH)) {
+            result = (String) JOptionPane.showInputDialog(
                     this,
-                    MB.mandelInfo(),
-                    "INFO",
+                    "New Recursion Depth:",
+                    "DEPTH",
                     JOptionPane.PLAIN_MESSAGE,
-                    null);
+                    null,
+                    null,
+                    "600"
+            );
+        }
+        try {
+            newDepth = Integer.parseInt(result);
+        } catch (NumberFormatException ex) {
+            System.out.println(result + " Not Valid");
+        }
+
+        if (newDepth != MB.getDepth()) {
+            MB.setDepth(newDepth);
+            System.out.println("\nChange Recursion Depth ... ");
+            MB.startMandel();
+            repaint();
         }
     }
+
+    private void changeLimit(ActionEvent e) {
+        String result = e.getActionCommand();
+        double newLimit = MB.getLimiter();
+        if (result.equals(MNU_CUSTOM_LIMIT)) {
+            result = (String) JOptionPane.showInputDialog(
+                    this,
+                    "New Limit:",
+                    "LIMIT",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    MB.getLimiter());
+        }
+        try {
+            newLimit = Double.parseDouble(result);
+        } catch (Exception ex) {
+            System.out.println(result + " Not Valid");
+        }
+
+        if (newLimit != MB.getLimiter()) {
+            System.out.println("\nChange Limiter ...");
+            MB.setLimiter(newLimit);
+            MB.startMandel();
+            repaint();
+        }
+    }
+
+    private void changeZoom(ActionEvent e) {
+        String result = e.getActionCommand();
+        int newZoom = Integer.parseInt(result.substring(0, result.length()-1));
+        MB.setZoom(newZoom);
+    }
+
 }
