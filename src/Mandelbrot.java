@@ -4,9 +4,6 @@ import java.util.Arrays;
 
 public class Mandelbrot {
 
-//    public static final int WIDTH = 1920;
-//    public static final int HEIGHT = 1920;
-
     public final String[] COLOR_FILTERS = {
             "Black&White", "Grayscale", "RGB One", "RGB Two", "RGB Red",
             "HSB One", "HSB Two", "HSB Log", "HSB sin", "HSB Log1p", "HSB 3", "HSB 4"};
@@ -24,12 +21,17 @@ public class Mandelbrot {
 
 
     public Mandelbrot() {
+        //imag -> height
+        //real -> width
+
         centerReal = 0.5;
         centerImag = 0;
+
         rangeReal = 2.5;
         rangeImag = 2.5;
+        width = 600;
+        height = 600;
 
-        width = height = 600;
         filter = COLOR_FILTERS[4];
         depth = 600;
         limiter = 2.0;

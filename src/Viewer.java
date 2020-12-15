@@ -19,8 +19,10 @@ public class Viewer extends JFrame implements ActionListener{
     private final String[] MNU_ZOOMS = {"2", "3", "5", "10"};
 
     private final Mandelbrot MB;
+    private final ViewerPanel VP;
+
     private String filepath;
-    private ViewerPanel vp;
+
 
     public Viewer(Mandelbrot _mandelbrot) {
 
@@ -28,9 +30,8 @@ public class Viewer extends JFrame implements ActionListener{
         setTitle("Mandelbrot");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        vp = new ViewerPanel(_mandelbrot);
-
-        add(new JScrollPane(vp));
+        VP = new ViewerPanel(_mandelbrot);
+        add(new JScrollPane(VP));
 
         JMenuBar menuBar = createMainMenu();
         setJMenuBar(menuBar);
@@ -39,6 +40,8 @@ public class Viewer extends JFrame implements ActionListener{
         setVisible(true);
 
     }
+
+
 
     private JMenuBar createMainMenu() {
        JMenuBar mnuBar = new JMenuBar();
@@ -50,34 +53,7 @@ public class Viewer extends JFrame implements ActionListener{
        JMenuItem itmSize = new JMenuItem("Image Size");
 
        itmSave.addActionListener(e -> saveToFile(itmChkInfo.getState()));
-       itmSize.addActionListener(e -> {
-           String result = (String) JOptionPane.showInputDialog(
-                   this,
-                   "New Size:",
-                   "IMAGE SIZE",
-                   JOptionPane.PLAIN_MESSAGE,
-                   null,
-                   null,
-                   MB.getWidth());
-           // for now: width == height
-           int newSize = MB.getWidth();
-           try {
-               newSize = Integer.parseInt(result);
-           } catch (Exception ex) {
-               System.out.println(result + " Not Valid");
-           }
-           if (newSize != MB.getWidth()) {
-               System.out.println("\nChange Image Size ... ");
-               MB.setWidth(newSize);
-               MB.setHeight(newSize);
-               vp.setPreferredSize(new Dimension(newSize, newSize));
-               MB.startMandel();
-               pack();
-               repaint();
-           }
-
-
-       });
+       itmSize.addActionListener(e -> resizeDialog());
 
        mnuFile.add(itmSave);
        mnuFile.add(itmChkInfo);
@@ -161,13 +137,54 @@ public class Viewer extends JFrame implements ActionListener{
        return mnuBar;
     }
 
+    private void resizeDialog() {
+        int newWidth = MB.getWidth();
+        int newHeight = MB.getHeight();
+
+        JPanel sizePane = new JPanel();
+        JTextField t1 = new JTextField(String.valueOf(newWidth), 6 );
+        JTextField t2 = new JTextField(String.valueOf(newHeight), 6);
+        sizePane.add(new JLabel("WIDTH"));
+        sizePane.add(t1);
+        sizePane.add(new JLabel("HEIGHT"));
+        sizePane.add(t2);
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                sizePane,
+                "Size",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                newWidth = Integer.parseInt(t1.getText());
+                newHeight = Integer.parseInt(t2.getText());
+            } catch (Exception ex) {
+                System.out.printf("Input Not Valid: w = %s, h = %s\n", t1.getText(), t2.getText());
+            }
+
+            if (newWidth != MB.getWidth() || newHeight != MB.getHeight()) {
+                System.out.println("\nChange Image Size ... ");
+                double ratio = (double) newWidth / newHeight;
+                MB.setRangeImag(MB.getRangeReal() / ratio);
+                MB.setWidth(newWidth);
+                MB.setHeight(newHeight);
+                VP.setPreferredSize(new Dimension(newWidth, newHeight));
+                MB.startMandel();
+                pack();
+                repaint();
+            }
+        }
+
+    }
+
     private void saveToFile(boolean _saveInfo) {
 
         JFileChooser fileChooser = new JFileChooser(filepath);
         fileChooser.setFileFilter(new FileNameExtensionFilter("Pictures *.png", "png"));
 
         int chooserResult = fileChooser.showSaveDialog(null);
-
         if (chooserResult == JFileChooser.APPROVE_OPTION) {
 
             File file = fileChooser.getSelectedFile();
@@ -199,6 +216,7 @@ public class Viewer extends JFrame implements ActionListener{
         }
 
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
